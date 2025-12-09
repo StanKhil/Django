@@ -27,7 +27,7 @@ def task4(request):
 
 def task5(request):
     import datetime
-    year = 2025
+    year = datetime.datetime.now().year
     if (year % 400 == 0) or (year % 4 == 0 and year % 100 != 0):
         day_of_programmer_date = datetime.datetime(year, 9, 12)
     else:
