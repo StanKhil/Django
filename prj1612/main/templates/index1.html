@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>{{header}}</h1>
+    <h2>Name: {{user.name}} Age: {{user.age}}</h2>
+    <h2>Adress: {{adress.0}} {{adress.1}} {{adress.2}}</h2>
+    <br/>
+    <ul>
+    {% for lan in langs %}
+        <li>{{lan}}</li>
+    {% endfor %}
+    {% with alpha=1 beta=2 %}
+    {% if alpha == beta %}
+        <li> equal </li>
+    {% else %}
+        <li> arent equal </li>
+    {% endif %}
+    {% endwith%}
+    </ul>
+</body>
+</html>
