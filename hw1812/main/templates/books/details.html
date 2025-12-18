@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h2>{{ book.title }}</h2>
+<img class="cover" src="{% static book.image %}" alt="cover">
+
+<ul>
+  <li>Автор: {{ book.author }}</li>
+  <li>Рік: {{ book.year }}</li>
+  <li>Стиль: {{ book.genre }}</li>
+  <li>Видавництво: {{ book.publisher }}</li>
+  <li>В наявності: {{ book.is_available|yesno:'Так,Ні' }}</li>
+</ul>
+{% endblock %}

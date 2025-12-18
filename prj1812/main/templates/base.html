@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} Home {% endblock title%}</title>
+</head>
+<body>
+    <div>
+        <a href="{% url 'base' %}">Home</a>
+        <a href="{% url 'contacts' %}">Contacts</a>
+        <a href="{% url 'sitemap' %}">Sitemap</a>
+        <a href="{% url 'song' %}">Song</a>
+    </div>
+    <h1>{%block header%}Default header{% endblock header%}</h1>
+    <div>
+        {%block content%}{%endblock content%}
+    </div>
+    <div>{{tobase}}</div>
+    <hr/>
+    {%include "banner.html"%}
+</body>
+</html>

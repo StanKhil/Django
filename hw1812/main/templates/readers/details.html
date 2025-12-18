@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+<h2>{{ reader.first_name }} {{ reader.last_name }}</h2>
+
+<img src="{% static reader.avatar %}" width="120" style="border-radius:50%;">
+
+<p>Телефон: {{ reader.phone }}</p>
+<p>Email: {{ reader.email }}</p>
+<p>Дата реєстрації: {{ reader.created_at }}</p>
+
+<h3>Взяті книги:</h3>
+<ul>
+{% for book in reader.books %}
+  <li>{{ book.title }}</li>
+{% empty %}
+  <li>Книг немає</li>
+{% endfor %}
+</ul>
+
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+<h2>Читачі</h2>
+
+<ul>
+{% for reader in readers %}
+  <li>
+    <img src="{% static reader.avatar %}" width="40" style="vertical-align:middle;border-radius:50%;">
+    <a href="{% url 'reader_details' reader.id %}">
+      {{ reader.first_name }} {{ reader.last_name }}
+    </a>
+  </li>
+{% endfor %}
+</ul>
+
+{% endblock %}

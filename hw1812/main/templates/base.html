@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Бібліотека</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<header>
+<h1>Бібліотека</h1>
+<nav>
+<a href="{% url 'books_list' %}">Книги</a>
+<a href="{% url 'readers_list' %}">Читачі</a>
+</nav>
+</header>
+<main>
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>
