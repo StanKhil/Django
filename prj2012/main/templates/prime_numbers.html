@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Prime</h1>
+    {%if not sent%}
+    <form action="/prime-numbers/" method="post">
+        {% csrf_token %}
+        <label for="num1">num1:</label>
+        <input type="number" id="num1" name="num1" required/><br/><br/>
+
+        <label for="num2">num2:</label>
+        <input type="number" id="num2" name="num2" required/><br/><br/>
+
+        <input type="submit" value="Send">
+    </form>
+    {% else %}
+    <h2>Numbers</h2>
+    {% for num in primes %}
+        <i>{{ num }}</i>
+    {%endfor%}
+    {%endif%}
+</body>
+</html>

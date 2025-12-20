@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form method="post">
+        {% csrf_token %}
+        <input type="number" step="any" name="a" placeholder="First number">
+        <input type="number" step="any" name="b" placeholder="Second number">
+        <input type="number" step="any" name="c" placeholder="Third number">
+        <br>
+        <input type="radio" name="action" value="min"> Minimum
+        <input type="radio" name="action" value="max"> Maximum
+        <input type="radio" name="action" value="avg"> Average
+        <br>
+        <button type="submit">Calculate</button>
+    </form>
+
+    <p>Result: {{ result }}</p>
+
+</body>
+</html>

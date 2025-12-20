@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Contact form</h1>
+    {%if not request.POST%}
+    <form action="/water/" method="post">
+        {% csrf_token %}
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required/><br/><br/>
+
+        <label for="surname">surname:</label>
+        <input type="text" id="surname" name="surname" required/><br/><br/>
+
+        <label for="email">email:</label>
+        <input type="email" id="email" name="email" required/><br/><br/>
+
+        <label for="phone">phone:</label>
+        <input type="number" id="phone" name="phone"/><br/><br/>
+
+        <label for="duration">duration:</label>
+        <label>1 month</label><input type="radio" id="duration" name="duration" value="1 month"/>
+         <label>3 monthes</label><input type="radio" id="duration" name="duration" value="3 monthes"/>
+         <label>6 monthes</label><input type="radio" id="duration" name="duration" value="6 monthes"/>
+         <label>1 year</label><input type="radio" id="duration" name="duration" value="1 year"/>
+        <br/><br/>
+
+        <label for="valume">valuem:</label>
+        <select id="valume" name="valume">
+            <option value="5l">5l</option>
+            <option value="10l">10l</option>
+            <option value="15l">15l</option>
+        <br/><br/>
+
+        <input type="submit" value="Send">
+    </form>
+    {% else %}
+    <h2>Data recieved</h2>
+    <p>Name: {{request.POST.name}}</p>
+    <p>Surname: {{request.POST.surname}}</p>
+    <p>Email: {{request.POST.email}}</p>
+    <p>Phone: {{request.POST.phone}}</p>
+    <p>Duration: {{request.POST.duration}}</p>
+    <p>Volume: {{request.POST.valume}}</p>
+    {%endif%}
+</body>
+</html>
