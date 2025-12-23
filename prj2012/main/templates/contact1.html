@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Contact form</h1>
+    {%if not sent%}
+    <form action="/contact1/" method="post">
+        {% csrf_token %}
+        {{ contact_form.as_p }}
+        <input type="submit" value="Send">
+    </form>
+    {% else %}
+    <h2>Data recieved</h2>
+    <p>Name: {{request.POST.name}}</p>
+    <p>Age: {{request.POST.age}}</p>
+    <p>Email: {{request.POST.email}}</p>
+    <p>Bio: {{request.POST.bio}}</p>
+    <p>Agree: {{request.POST.agree}}</p>
+    {%endif%}
+</body>
+</html>

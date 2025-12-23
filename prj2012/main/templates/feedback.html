@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Feedback form</h1>
+    {%if not sent%}
+    <form action="/feedback/" method="post">
+        {% csrf_token %}
+        {{ feedback_form.as_p }}
+        <input type="submit" value="Send">
+    </form>
+    {% else %}
+    <h2>Data recieved</h2>
+    <p>Nickname: {{request.POST.nickname}}</p>
+    <p>Rate: {{request.POST.rate}}</p>
+    <p>Feedback: {{request.POST.feedback}}</p>
+    <p>No spoilers: {{request.POST.spoilers}}</p>
+    {%endif%}
+</body>
+</html>

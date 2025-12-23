@@ -1,6 +1,9 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import TemplateView
+from main.forms import *
+from django.core.files.storage import FileSystemStorage
 # Create your views here.
 
 @csrf_protect
@@ -62,3 +65,39 @@ class WaterFormView(TemplateView):
         contact_form['duration'] = request.POST.get("duration")
         contact_form['valume'] = request.POST.get("valume")
         return render(request, self.template_name, contact_form)
+    
+
+@csrf_protect
+def get_contact1(request):
+    if request.method == "POST":
+        contact_form = ContactForm(request.POST)
+        if contact_form.is_valid():
+            return render(request, "contact1.html", {"sent": True})
+    else:
+        contact_form = ContactForm()
+    return render(request, "contact1.html", {"contact_form":contact_form, "sent": False})
+
+@csrf_protect
+def get_feedback(request):
+    if request.method == "POST":
+        feeedback_form = FeedbackForm(request.POST)
+        if feeedback_form.is_valid():
+            return render(request, "feedback.html", {"sent": True})
+    else:
+        feeedback_form = FeedbackForm()
+    return render(request, "feedback.html", {"feedback_form":feeedback_form, "sent": False})
+
+
+@csrf_protect
+def add_film(request):
+    if request.method =='POST':
+        form = AddFilmForm(request.POST, request.FILES)
+        if form.is_valid():
+            if request.FILES:
+                poster = request.FILES["poster"]
+                fs = FileSystemStorage()
+                filename = fs.save(poster.name, poster)
+            return render(request, "film.html", {"sent": True})
+    else:
+        form = AddFilmForm()
+    return render(request, "film.html", {"form":form, "sent": False})

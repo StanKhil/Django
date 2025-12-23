@@ -1,16 +1,24 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block content %}
 <h2>Список книг</h2>
 
+<a href="{% url 'book_create' %}">Додати книгу</a>
+
 <div class="grid">
 {% for book in books %}
   <div class="card">
-    <img src="{% static 'images/book' %}{{ forloop.counter }}.jfif" alt="cover">
+    {% if book.cover %}
+      <img src="/media/{{ book.cover }}" alt="cover" width="150">
+    {% endif %}
     <h3>{{ book.title }}</h3>
     <p>{{ book.author }}</p>
     <a href="{% url 'book_details' book.id %}">Детальніше</a>
+    | <a href="{% url 'book_update' book.id %}">Редагувати</a>
+    | <form method="post" action="{% url 'book_delete' book.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit">Видалити</button>
+      </form>
   </div>
 {% endfor %}
 </div>

@@ -3,7 +3,9 @@
 
 {% block content %}
 <h2>{{ book.title }}</h2>
-<img class="cover" src="{% static book.image %}" alt="cover">
+
+<img src="/media/{{ book.cover }}" width="200">
+
 
 <ul>
   <li>Автор: {{ book.author }}</li>
@@ -12,4 +14,19 @@
   <li>Видавництво: {{ book.publisher }}</li>
   <li>В наявності: {{ book.is_available|yesno:'Так,Ні' }}</li>
 </ul>
+
+<hr>
+
+<div class="actions">
+  <a href="{% url 'books_list' %}">До списку книг</a> |
+  <a href="{% url 'book_update' book.id %}">Редагувати</a> |
+
+  <form method="post"
+        action="{% url 'book_delete' book.id %}"
+        style="display:inline;">
+    {% csrf_token %}
+    <button type="submit">Видалити</button>
+  </form>
+</div>
+
 {% endblock %}

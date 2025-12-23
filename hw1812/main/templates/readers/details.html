@@ -1,11 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 
-
 {% block content %}
 <h2>{{ reader.first_name }} {{ reader.last_name }}</h2>
 
-<img src="{% static reader.avatar %}" width="120" style="border-radius:50%;">
+<img src="/media/{{ reader.avatar }}" width="120" style="border-radius:50%;">
 
 <p>Телефон: {{ reader.phone }}</p>
 <p>Email: {{ reader.email }}</p>
@@ -19,5 +18,19 @@
   <li>Книг немає</li>
 {% endfor %}
 </ul>
+
+<hr>
+
+<div class="actions">
+  <a href="{% url 'readers_list' %}">До списку читачів</a> |
+  <a href="{% url 'reader_update' reader.id %}">Редагувати</a> |
+
+  <form method="post"
+        action="{% url 'reader_delete' reader.id %}"
+        style="display:inline;">
+    {% csrf_token %}
+    <button type="submit">Видалити</button>
+  </form>
+</div>
 
 {% endblock %}

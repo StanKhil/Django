@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h2>
+  {% if form.initial %}
+    Редагувати книгу
+  {% else %}
+    Додати книгу
+  {% endif %}
+</h2>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+
+  <button type="submit">Зберегти</button>
+  <a href="{% url 'books_list' %}">Назад</a>
+</form>
+
+{% endblock %}
