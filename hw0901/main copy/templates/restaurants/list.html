@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ресторани міста</title>
+</head>
+<body>
+
+<h1>Ресторани міста</h1>
+
+<form method="get">
+    <input type="text" name="specialization" placeholder="Спеціалізація">
+    <button type="submit">Пошук</button>
+</form>
+
+<br>
+<a href="{% url 'restaurant_add' %}">Додати ресторан</a>
+<hr>
+
+{% for restaurant in restaurants %}
+    <p>
+        <strong>{{ restaurant.name }}</strong><br>
+        {{ restaurant.specialization }}<br>
+        {{ restaurant.address }}<br>
+        {{ restaurant.phone }}<br>
+
+        {% if restaurant.website %}
+            <a href="{{ restaurant.website }}">{{ restaurant.website }}</a><br>
+        {% endif %}
+
+        <a href="{% url 'restaurant_edit' restaurant.id %}">✏️ Редагувати</a>
+        |
+        <a href="{% url 'restaurant_delete' restaurant.id %}">🗑 Видалити</a>
+    </p>
+    <hr>
+{% empty %}
+    <p>Ресторанів не знайдено</p>
+{% endfor %}
+
+</body>
+</html>

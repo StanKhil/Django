@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ресторан</title>
+</head>
+<body>
+
+<h1>
+    {% if restaurant %}Редагувати ресторан{% else %}Додати ресторан{% endif %}
+</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    <label>Назва:</label><br>
+    <input type="text" name="name" required
+           value="{{ restaurant.name|default:'' }}"><br><br>
+
+    <label>Спеціалізація:</label><br>
+    <input type="text" name="specialization" required
+           value="{{ restaurant.specialization|default:'' }}"><br><br>
+
+    <label>Адреса:</label><br>
+    <input type="text" name="address" required
+           value="{{ restaurant.address|default:'' }}"><br><br>
+
+    <label>Вебсайт:</label><br>
+    <input type="url" name="website"
+           value="{{ restaurant.website|default:'' }}"><br><br>
+
+    <label>Телефон:</label><br>
+    <input type="text" name="phone" required
+           value="{{ restaurant.phone|default:'' }}"><br><br>
+
+    <button type="submit">
+        {% if restaurant %}Оновити{% else %}Зберегти{% endif %}
+    </button>
+</form>
+
+<br>
+<a href="{% url 'restaurant_list' %}">Назад</a>
+
+</body>
+</html>
