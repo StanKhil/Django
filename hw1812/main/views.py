@@ -1,6 +1,11 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from main.forms import *
+from .models import *
 from django.core.files.storage import FileSystemStorage
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth import authenticate, login, logout
+from django.http import HttpResponseForbidden
+from django.contrib import messages
 import os
 from django.conf import settings
 
@@ -22,125 +27,54 @@ def delete_file(file_path):
         os.remove(full_path)
 
 
-
-BOOKS_DB = {
-    1: {
-        'id': 1,
-        'title': 'Гамлет',
-        'author': 'Вільям Шекспір',
-        'year': 1603,
-        'genre': 'Трагедія',
-        'publisher': 'Нілсон',
-        'is_available': True,
-    },
-    2: {
-        'id': 2,
-        'title': '1984',
-        'author': 'Джордж Орвелл',
-        'year': 1949,
-        'genre': 'Антиутопія',
-        'publisher': 'Secker & Warburg',
-        'is_available': False,
-    }
-}
-
-READERS_DB = {
-    1: {
-        'id': 1,
-        'first_name': 'Іван',
-        'last_name': 'Петренко',
-        'phone': '+380991112233',
-        'email': 'ivan@test.com',
-        'created_at': '2024-01-10',
-        'books': [2],
-        'avatar': 'images/reader1.jfif',
-    },
-    2: {
-        'id': 2,
-        'first_name': 'Олена',
-        'last_name': 'Коваль',
-        'phone': '+380501234567',
-        'email': 'olena@test.com',
-        'created_at': '2024-02-05',
-        'books': [],
-        'avatar': 'images/reader2.jfif',
-    }
-}
-
-
-class Book:
-    def __init__(self, data: dict):
-        self.id = data['id']
-        self.title = data['title']
-        self.author = data['author']
-        self.year = data['year']
-        self.genre = data['genre']
-        self.publisher = data['publisher']
-        self.is_available = data['is_available']
-        self.cover = data.get('cover')
-
-
-class Reader:
-    def __init__(self, data):
-        self.id = data['id']
-        self.first_name = data['first_name']
-        self.last_name = data['last_name']
-        self.phone = data['phone']
-        self.email = data['email']
-        self.created_at = data['created_at']
-        self.avatar = data.get('avatar')
-        self.books = [Book(BOOKS_DB[int(b_id)]) for b_id in data['books']]
-
-
-
 def books_list(request):
-    books = [Book(book) for book in BOOKS_DB.values()]
-    return render(request, 'books/index.html', {'books': books})
+    show_available = request.GET.get('available')
+
+    if show_available == '1':
+        books = Book.objects.filter(is_available=True)
+    else:
+        books = Book.objects.all()
+
+    return render(request, 'books/index.html', {'books': books, 'show_available': show_available})
 
 
+@login_required
+@permission_required('main.view_book', raise_exception=True)
 def book_details(request, pk):
-    book = Book(BOOKS_DB[pk])
+    book = get_object_or_404(Book, pk=pk)
     book.image = f'images/book{pk}.jfif'
     return render(request, 'books/details.html', {'book': book})
 
 
-
+@login_required
+@permission_required('main.view_reader', raise_exception=True)
 def readers_list(request):
-    readers = [Reader(reader) for reader in READERS_DB.values()]
+    readers = Reader.objects.prefetch_related('books')
     return render(request, 'readers/index.html', {'readers': readers})
 
-
+@login_required
+@permission_required('main.view_reader', raise_exception=True)
 def reader_details(request, pk):
-    reader = Reader(READERS_DB[pk])
+    reader = get_object_or_404(Reader, pk=pk)
     return render(request, 'readers/details.html', {'reader': reader})
 
 
 
-def books_list(request):
-    books = [Book(book) for book in BOOKS_DB.values()]
-    return render(request, 'books/index.html', {'books': books})
-
-
+@login_required
+@permission_required('main.add_book', raise_exception=True)
 def book_create(request):
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES)
         if form.is_valid():
-            data = form.cleaned_data
-
-            cover_path = None
-            if data.get('cover'):
-                cover_path = save_file(data['cover'], 'books')
-
-            BOOKS_DB[data['id']] = {
-                'id': data['id'],
-                'title': data['title'],
-                'author': data['author'],
-                'year': data['year'],
-                'genre': data['genre'],
-                'publisher': data['publisher'],
-                'is_available': data['is_available'],
-                'cover': cover_path or 'images/default_book.jpg',
-            }
+            book = Book.objects.create(
+                title=form.cleaned_data['title'],
+                author=form.cleaned_data['author'],
+                year=form.cleaned_data['year'],
+                genre=form.cleaned_data['genre'],
+                publisher=form.cleaned_data['publisher'],
+                is_available=form.cleaned_data['is_available'],
+                cover=form.cleaned_data.get('cover')
+            )
             return redirect('books_list')
     else:
         form = BookForm()
@@ -148,109 +82,107 @@ def book_create(request):
     return render(request, 'books/form.html', {'form': form})
 
 
+
+@login_required
+@permission_required('main.change_book', raise_exception=True)
 def book_update(request, pk):
-    book = BOOKS_DB[pk]
+    book = get_object_or_404(Book, pk=pk)
 
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES)
         if form.is_valid():
-            data = form.cleaned_data
-
-            if data.get('cover'):
-                book['cover'] = save_file(data['cover'], 'books')
-
-            for field in ['title', 'author', 'year', 'genre', 'publisher', 'is_available']:
-                book[field] = data[field]
-
+            for field, value in form.cleaned_data.items():
+                if value is not None:
+                    setattr(book, field, value)
+            book.save()
             return redirect('book_details', pk=pk)
     else:
-        form = BookForm(initial=book)
+        form = BookForm(instance=book)
 
     return render(request, 'books/form.html', {'form': form})
 
 
+
+@login_required
+@permission_required('main.delete_book', raise_exception=True)
 def book_delete(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+
     if request.method == 'POST':
-        book = BOOKS_DB.get(pk)
-
-        if book:
-            delete_file(book.get('cover'))
-            BOOKS_DB.pop(pk)
-
+        if book.cover:
+            delete_file(book.cover.name)
+        book.delete()
         return redirect('books_list')
 
-    return render(request, 'books/delete.html', {'id': pk})
+    return render(request, 'books/delete.html', {'book': book})
 
 
 
 
+@login_required
+@permission_required('main.add_reader', raise_exception=True)
 def reader_create(request):
-    book_choices = [(k, v['title']) for k, v in BOOKS_DB.items()]
-
     if request.method == 'POST':
         form = ReaderForm(request.POST, request.FILES)
-        form.fields['books'].choices = book_choices
+        form.fields['books'].choices = [(b.id, b.title) for b in Book.objects.all()]
 
         if form.is_valid():
-            data = form.cleaned_data
-
-            avatar_path = 'images/default_avatar.jpg'
-            if data.get('avatar'):
-                avatar_path = save_file(data['avatar'], 'readers')
-
-            READERS_DB[data['id']] = {
-                'id': data['id'],
-                'first_name': data['first_name'],
-                'last_name': data['last_name'],
-                'phone': data['phone'],
-                'email': data['email'],
-                'created_at': data['created_at'],
-                'books': data['books'],
-                'avatar': avatar_path,
-            }
+            reader = Reader.objects.create(
+                first_name=form.cleaned_data['first_name'],
+                last_name=form.cleaned_data['last_name'],
+                phone=form.cleaned_data['phone'],
+                email=form.cleaned_data['email'],
+                avatar=form.cleaned_data.get('avatar')
+            )
+            reader.books.set(form.cleaned_data['books'])
             return redirect('readers_list')
     else:
         form = ReaderForm()
-        form.fields['books'].choices = book_choices
+        form.fields['books'].choices = [(b.id, b.title) for b in Book.objects.all()]
 
     return render(request, 'readers/form.html', {'form': form})
 
 
+
+@login_required
+@permission_required('main.change_reader', raise_exception=True)
 def reader_update(request, pk):
-    reader = READERS_DB[pk]
-    book_choices = [(k, v['title']) for k, v in BOOKS_DB.items()]
+    reader = get_object_or_404(Reader, pk=pk)
 
     if request.method == 'POST':
         form = ReaderForm(request.POST, request.FILES)
-        form.fields['books'].choices = book_choices
+        form.fields['books'].choices = [(b.id, b.title) for b in Book.objects.all()]
 
         if form.is_valid():
-            data = form.cleaned_data
+            reader.first_name = form.cleaned_data['first_name']
+            reader.last_name = form.cleaned_data['last_name']
+            reader.phone = form.cleaned_data['phone']
+            reader.email = form.cleaned_data['email']
 
-            if data.get('avatar'):
-                reader['avatar'] = save_file(data['avatar'], 'readers')
+            if form.cleaned_data.get('avatar'):
+                reader.avatar = form.cleaned_data['avatar']
 
-            for field in ['first_name', 'last_name', 'phone', 'email', 'created_at', 'books']:
-                reader[field] = data[field]
-
-            return redirect('reader_details', pk=pk)
+            reader.save()
+            reader.books.set(form.cleaned_data['books'])
+            return redirect('readers_list')
     else:
-        form = ReaderForm(initial=reader)
-        form.fields['books'].choices = book_choices
+        form = ReaderForm(instance=reader)
+        form.fields['books'].choices = [(b.id, b.title) for b in Book.objects.all()]
 
     return render(request, 'readers/form.html', {'form': form})
 
 
-
+@login_required
+@permission_required('main.delete_reader', raise_exception=True)
 def reader_delete(request, pk):
+    reader = get_object_or_404(Reader, pk=pk)
+
     if request.method == 'POST':
-        reader = READERS_DB.get(pk)
-
-        if reader:
-            delete_file(reader.get('avatar'))
-            READERS_DB.pop(pk)
-
+        if reader.avatar:
+            delete_file(reader.avatar.name)
+        reader.delete()
         return redirect('readers_list')
 
-    return render(request, 'readers/delete.html', {'id': pk})
+    return render(request, 'readers/delete.html', {'reader': reader})
+
 

@@ -12,6 +12,26 @@
 <nav>
 <a href="{% url 'books_list' %}">Книги</a>
 <a href="{% url 'readers_list' %}">Читачі</a>
+
+{% if user.is_authenticated %}
+    <form method="post" action="{% url 'logout' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit">Вийти</button>
+    </form>
+{% else %}
+    <form method="post" action="{% url 'login' %}" style="display:inline;">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Логін" required>
+        <input type="password" name="password" placeholder="Пароль" required>
+        <input type="hidden" name="next" value="{{ request.path }}">
+        <button type="submit">Увійти</button>
+    </form>
+    {% for message in messages %}
+        <span style="color:red;">{{ message }}</span>
+    {% endfor %}
+{% endif %}
+
+
 </nav>
 </header>
 <main>
